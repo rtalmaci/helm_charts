@@ -1,0 +1,157 @@
+  
+# Default values for spring-boot-chart.
+
+replicaCount: 1
+
+nameOverride: ""
+fullnameOverride: ""
+
+# namespace: "default"
+
+labels: {}
+  # app: api-xxx
+  # foo: bar
+
+deployment:
+  #
+  # deployment spec template annotations
+  #
+  annotations: {}
+    # prometheus.io/path: /stats/prometheus
+    # prometheus.io/port: "15020"
+    # prometheus.io/scrape: "true"
+    # sidecar.istio.io/status: '{"initContainers":["istio-init"],"containers":["istio-proxy"],"volumes":["istio-envoy","istio-data","istio-podinfo","istio-token","istiod-ca-cert"],"imagePullSecrets":null}'
+
+  containers:
+  - name: container-name
+    image:
+      repository: gcr.io/google_containers/echoserver
+      tag: "1.10"
+      pullPolicy: IfNotPresent
+    env:
+      # Env variables
+      vars: []
+      # - name: foo
+      #   value: bar
+
+    ports:
+    - name: http
+      protocol: TCP
+      containerPort: 8090
+      servicePort: 8090
+      appProtocol: http
+
+    livenessProbe: 
+      httpGet:
+        path: /actuator/health/liveness
+        port: http
+    readinessProbe: 
+      httpGet:
+        path: /actuator/health/readiness
+        port: http
+    resources: 
+      requests:
+        memory: "2048Mi"
+        cpu: "400m"
+      limits:
+        memory: "2048Mi"
+        cpu: "2000m"
+
+    securityContext: {}
+      # allowPrivilegeEscalation: false
+      # capabilities:
+      #   drop:
+      #   - ALL
+      # privileged: false
+      # readOnlyRootFilesystem: true
+      # runAsGroup: 1337
+      # runAsNonRoot: true
+      # runAsUser: 1337
+
+  imagePullSecrets: []
+  # - registry-secret-1
+  # - registry-secret-2
+
+  strategy: {}
+    # type: Recreate
+    # rollingUpdate:
+    #   maxSurge: 1
+    #   maxUnavailable: 1
+
+  containerSpecOptions: {}
+    # dnsPolicy: ClusterFirst
+    # restartPolicy: Always
+    # schedulerName: default-scheduler
+    # terminationGracePeriodSeconds: 30
+
+
+#
+# Volumes - to be attached to the pod.
+#
+
+volumes: []
+# - name: secret-volume
+#   secret:
+#     secretName: test-secret
+# - name: config-volume
+#   configMap:
+#     # Provide the name of the ConfigMap containing the files you want
+#     # to add to the container
+#     name: special-config
+
+#
+# Service variables
+#
+service:
+  type: ClusterIP
+  port: 80
+
+#
+# Ingress variables
+#
+#
+ingress:
+  enabled: false
+  annotations:
+    kubernetes.io/ingress.class: istio
+  hosts:
+    - ia-ds.dev01.us-west-2.dev.ds-dev.intacct.com
+  paths:
+    - path: /ia-ds-template
+      servicePort: http
+      pathType: Prefix
+    - path: /ia/api/v0/objects/dummy
+      pathType: Prefix
+      servicePort: http
+    - path: /ia/api/v0/objects/contact
+      pathType: Prefix
+      servicePort: http
+
+#
+# RBAC
+#
+rbac:
+  create: true
+
+#
+# Spring Cloud config properties
+#
+configmap:
+  # data contains vaues in application.yml format
+  data:
+    spring.application.name: ds-thing
+    server.port: 8040
+
+#
+# HPA
+#
+hpa:
+  enabled: true
+  spec:
+    scaleTargetRef:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: spring-boot-chart
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 50
