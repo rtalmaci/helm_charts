@@ -115,17 +115,12 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: istio
   hosts:
-    - ia-ds.dev01.us-west-2.dev.ds-dev.intacct.com
+    - "*"
   paths:
-    - path: /ia-ds-template
+    - path: /test/path
       servicePort: http
       pathType: Prefix
-    - path: /ia/api/v0/objects/dummy
-      pathType: Prefix
-      servicePort: http
-    - path: /ia/api/v0/objects/contact
-      pathType: Prefix
-      servicePort: http
+
 
 #
 # RBAC
