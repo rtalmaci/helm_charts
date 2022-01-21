@@ -10,6 +10,7 @@ metadata:
 {{ toYaml .Values.labels | indent 4 }}
     {{- end }}
 spec:
+
   {{- if not .Values.hpa.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
@@ -26,6 +27,9 @@ spec:
 {{ toYaml .Values.labels | indent 8 }}
         {{- end }}
     spec:
+      {{- if .Values.rbac.create }}
+      serviceAccountName: {{ include "spring-boot-chart.fullname" . }}
+      {{- end }}
       containers:
         {{- range $index, $container := .Values.deployment.containers }}
         # Container {{ $index }} - {{ $container.name }}
