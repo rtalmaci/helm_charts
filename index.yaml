@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   spring-boot-chart:
   - apiVersion: v1
+    appVersion: 0.0.2
+    created: "2022-01-21T14:10:30.761790147Z"
+    description: Simple spring boot helm chart
+    digest: 2f340b45de5a3d83a09aff6264d4d1f0485e6099cbd6fc15f9f0e38b592c7949
+    home: https://rtalmaci.github.io/helm_charts
+    name: spring-boot-chart
+    urls:
+    - https://github.com/rtalmaci/helm_charts/releases/download/spring-boot-chart-0.0.2/spring-boot-chart-0.0.2.tgz
+    version: 0.0.2
+  - apiVersion: v1
     appVersion: 0.0.1
     created: "2022-01-13T11:29:23.294521971Z"
     description: Simple spring boot helm chart
