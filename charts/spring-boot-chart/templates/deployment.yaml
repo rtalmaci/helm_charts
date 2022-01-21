@@ -2,9 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "spring-boot-chart.fullname" . }}
-  {{- if .Values.namespace }}
-  namespace: {{ .Values.namespace }}
-  {{- end }}
   labels:
     helm.sh/chart: {{ include "spring-boot-chart.chart" . }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -19,11 +16,6 @@ spec:
   selector:
     matchLabels:
       app.selector: {{ include "spring-boot-chart.fullname" . }}
-
-  {{- if .Values.strategy }}
-  strategy:
-{{ toYaml .Values.strategy | indent 4 }}
-  {{- end }}
   template:
     metadata:
       annotations:
@@ -34,12 +26,7 @@ spec:
 {{ toYaml .Values.labels | indent 8 }}
         {{- end }}
     spec:
-      {{- if .Values.containerSpecOptions }}
-{{ toYaml .Values.containerSpecOptions | indent 6 }}
-      {{- end }}
-
       containers:
-
         {{- range $index, $container := .Values.deployment.containers }}
         # Container {{ $index }} - {{ $container.name }}
         - name: {{ $container.name }}

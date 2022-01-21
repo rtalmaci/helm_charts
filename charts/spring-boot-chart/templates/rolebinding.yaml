@@ -3,9 +3,6 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: {{ include "spring-boot-chart.fullname" . }}
-  {{- if .Values.namespace }}
-  namespace: {{ .Values.namespace }}
-  {{- end }}
   labels:
     helm.sh/chart: {{ include "spring-boot-chart.chart" . }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}

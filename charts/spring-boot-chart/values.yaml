@@ -72,19 +72,6 @@ deployment:
   # - registry-secret-1
   # - registry-secret-2
 
-  strategy: {}
-    # type: Recreate
-    # rollingUpdate:
-    #   maxSurge: 1
-    #   maxUnavailable: 1
-
-  containerSpecOptions: {}
-    # dnsPolicy: ClusterFirst
-    # restartPolicy: Always
-    # schedulerName: default-scheduler
-    # terminationGracePeriodSeconds: 30
-
-
 #
 # Volumes - to be attached to the pod.
 #
