@@ -1,0 +1,151 @@
+  
+# Default values for spring-boot-chart.
+
+replicaCount: 1
+
+nameOverride: ""
+fullnameOverride: ""
+version: "v1"
+# namespace: "default"
+
+labels: {}
+  # app: api-xxx
+  # foo: bar
+
+deployment:
+  #
+  # deployment spec template annotations
+  #
+  annotations: {}
+    # prometheus.io/path: /stats/prometheus
+    # prometheus.io/port: "15020"
+    # prometheus.io/scrape: "true"
+    # sidecar.istio.io/status: '{"initContainers":["istio-init"],"containers":["istio-proxy"],"volumes":["istio-envoy","istio-data","istio-podinfo","istio-token","istiod-ca-cert"],"imagePullSecrets":null}'
+  mainContainer:
+    name: container-name
+    image:
+      repository: gcr.io/google_containers/echoserver
+      tag: "1.10"
+      pullPolicy: IfNotPresent
+    env:
+      vars: []
+    httpPort: 8090
+    hazelcast:
+      enabled: true
+      hazelcastPort: 5701
+      serviceSelector: {}
+    ports: []
+#      - name: http
+#        protocol: TCP
+#        containerPort: 8090
+#        servicePort: 8090
+#        appProtocol: http
+    livenessProbe:
+      initialDelaySeconds: 20
+    readinessProbe:
+      initialDelaySeconds: 20
+    resources:
+      requests:
+        memory: "2048Mi"
+        cpu: "400m"
+      limits:
+        memory: "2048Mi"
+        cpu: "2000m"
+    securityContext: {}
+  secondaryContainer:
+    enabled: true
+    name: second
+    image:
+      repository: gcr.io/google_containers/echoserver
+      tag: "1.10"
+      pullPolicy: IfNotPresent
+    env:
+      vars: [ ]
+    ports: [ ]
+      #      - name: http
+      #        protocol: TCP
+      #        containerPort: 8090
+      #        servicePort: 8090
+      #        appProtocol: http
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "400m"
+      limits:
+        memory: "256Mi"
+        cpu: "1000m"
+    securityContext: {}
+  imagePullSecrets: []
+  #
+  # Volumes - to be attached to the pod.
+  #
+  volumes: []
+  # - name: secret-volume
+  #   secret:
+  #     secretName: test-secret
+  # - name: config-volume
+  #   configMap:
+  #     # Provide the name of the ConfigMap containing the files you want
+  #     # to add to the container
+  #     name: special-config
+
+#
+# Service variables
+#
+service:
+  type: ClusterIP
+  port: 8090
+
+#
+# Ingress variables
+#
+#
+ingress:
+  enabled: true
+  annotations: []
+  ingressClassName: nginx
+  hosts:
+    - "*"
+  paths:
+    - path: /test/path
+      servicePort: http
+      pathType: Prefix
+
+
+#
+# RBAC
+#
+rbac:
+  create: true
+
+#
+# Spring Cloud config properties
+#
+configmap:
+  # data contains vaues in application.yml format
+  data: {}
+
+#
+# HPA
+#
+hpa:
+  enabled: true
+  spec:
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 50
+
+db:
+  mongo:
+    enabled: true
+    ## secret must contain: uri as data; sample: mongodb://%s:%s@%s/%s?authSource=%s
+    secretName: mysecret
+    # credentials from k8s secret
+    additionalOpts: "&minPoolSize=1&maxPoolSize=10&compressors=zlib"
+    useAuthSourceSecret: false
+
+servicemonitor:
+  enabled: false
+  namespace: "monitoring"
+  labels:
+    release: prom

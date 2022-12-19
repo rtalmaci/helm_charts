@@ -1,0 +1,21 @@
+{{- if .Values.hpa.enabled -}}
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "spring-boot-chart.fullname" . }}
+  labels:
+    helm.sh/chart: {{ include "spring-boot-chart.chart" . }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.selector: {{ include "spring-boot-chart.fullname" . }}
+    app.kubernetes.io/name: {{ include "spring-boot-chart.fullname" . }}
+    app.kubernetes.io/version: {{ .Values.version }}
+    {{- if .Values.labels }}
+{{ toYaml .Values.labels | indent 4 }}
+    {{- end }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "spring-boot-chart.fullname" . }}
+{{ toYaml .Values.hpa.spec | indent 2 }}
+{{- end }}

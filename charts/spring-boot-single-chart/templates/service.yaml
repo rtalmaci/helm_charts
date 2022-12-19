@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "spring-boot-chart.fullname" . }}
+  {{- if .Values.namespace }}
+  namespace: {{ .Values.namespace }}
+  {{- end }}
+  labels:
+    helm.sh/chart: {{ include "spring-boot-chart.chart" . }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.selector: {{ include "spring-boot-chart.fullname" . }}
+    app.kubernetes.io/name: {{ include "spring-boot-chart.fullname" . }}
+    app.kubernetes.io/version: {{ .Values.version }}
+    {{- if .Values.labels }}
+{{ toYaml .Values.labels | indent 4 }}
+    {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.deployment.mainContainer.httpPort }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.selector: {{ include "spring-boot-chart.fullname" . }}

@@ -1,0 +1,119 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "spring-boot-chart.fullname" . }}
+  labels:
+    helm.sh/chart: {{ include "spring-boot-chart.chart" . }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.selector: {{ include "spring-boot-chart.fullname" . }}
+    app.kubernetes.io/name: {{ include "spring-boot-chart.fullname" . }}
+    app.kubernetes.io/version: {{ .Values.version }}
+    {{- if .Values.labels }}
+{{ toYaml .Values.labels | indent 4 }}
+    {{- end }}
+spec:
+
+  {{- if not .Values.hpa.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app.selector: {{ include "spring-boot-chart.fullname" . }}
+  template:
+    metadata:
+      annotations:
+{{ toYaml .Values.deployment.annotations | indent 8 }}
+      labels:
+        app.selector: {{ include "spring-boot-chart.fullname" . }}
+        {{- if .Values.labels }}
+{{ toYaml .Values.labels | indent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.rbac.create }}
+      serviceAccountName: {{ include "spring-boot-chart.fullname" . }}
+      {{- end }}
+      containers:
+        - name: {{ .Values.deployment.mainContainer.name }}
+          image: "{{ .Values.deployment.mainContainer.image.repository }}:{{ .Values.deployment.mainContainer.image.tag }}"
+          imagePullPolicy: {{ .Values.deployment.mainContainer.image.pullPolicy }}
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-Dserver.port={{ .Values.deployment.mainContainer.httpPort }}"
+          {{- if .Values.db.mongo.enabled }}
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.mongo.secretName }}
+                  key: uri
+          {{- if .Values.db.mongo.useAuthSourceSecret }}
+            - name: MONGO_AUTH_SOURCE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.mongo.secretName }}
+                  key: auth_source
+          {{- end }}
+            - name: MONGO_ADDITIONAL_OPTIONS
+              value: "{{ .Values.db.mongo.additionalOpts }}"
+          {{- end }}
+          # env vars
+          {{- if (gt (len .Values.deployment.mainContainer.env.vars) 0) }}
+{{ toYaml .Values.deployment.mainContainer.env.vars | indent 10 }}
+          {{- end }}
+          #ports:
+
+          ports:
+            - name: http
+              protocol: TCP
+              containerPort: {{ .Values.deployment.mainContainer.httpPort }}
+          {{- if .Values.deployment.mainContainer.hazelcast.enabled }}
+            - name: hazelcast
+              protocol: TCP
+              containerPort: {{ .Values.deployment.mainContainer.hazelcast.hazelcastPort }}
+          {{- end }}
+          # END: ports
+
+          # probes:
+          livenessProbe:
+            initialDelaySeconds: {{ .Values.deployment.mainContainer.livenessProbe.initialDelaySeconds }}
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+          readinessProbe:
+            initialDelaySeconds: {{ .Values.deployment.mainContainer.readinessProbe.initialDelaySeconds }}
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+          # probes
+          resources:
+            {{- toYaml .Values.deployment.mainContainer.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.deployment.mainContainer.securityContext | nindent 12 }}
+{{- if .Values.deployment.secondaryContainer.enabled }}
+        - name: {{ .Values.deployment.secondaryContainer.name }}
+          image:  "{{ .Values.deployment.secondaryContainer.image.repository }}:{{ .Values.deployment.secondaryContainer.image.tag }}"
+          imagePullPolicy: {{ .Values.deployment.secondaryContainer.image.pullPolicy }}
+          {{- if (gt (len .Values.deployment.secondaryContainer.env.vars) 0) }}
+          env:
+  {{ toYaml .Values.deployment.secondaryContainer.env.vars | nindent 10 }}
+          {{- end }}
+          {{- if (gt (len .Values.deployment.secondaryContainer.ports ) 0)}}
+          ports:
+  {{ toYaml .Values.deployment.secondaryContainer.ports | nindent 10 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.deployment.secondaryContainer.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.deployment.secondaryContainer.securityContext | nindent 12 }}
+{{- end }}
+
+      {{- if .Values.deployment.imagePullSecrets }}
+      imagePullSecrets:      
+      {{- range .Values.deployment.imagePullSecrets }}
+      - name: {{ . }}
+      {{- end }}
+      {{- end }}
+
+      # Volumes
+      volumes:
+{{- toYaml .Values.deployment.volumes | nindent 8 }}
+

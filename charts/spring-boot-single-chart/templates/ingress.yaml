@@ -9,11 +9,18 @@ metadata:
   labels:
     helm.sh/chart: {{ include "spring-boot-chart.chart" . }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
-  {{- with .Values.ingress.annotations }}
+    app.selector: {{ include "spring-boot-chart.fullname" . }}
+    app.kubernetes.io/name: {{ include "spring-boot-chart.fullname" . }}
+    app.kubernetes.io/version: {{ .Values.version }}
+    {{- if .Values.labels }}
+{{ toYaml .Values.labels | indent 4 }}
+    {{- end }}
+{{- with .Values.ingress.annotations }}
   annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+{{- toYaml . | nindent 4 }}
+{{- end }}
 spec:
+  ingressClassName: {{ .Values.ingress.ingressClassName }}
   rules:
     - http:
         paths:
@@ -25,5 +32,5 @@ spec:
                 name: {{ $fullName }}
                 port:
                   name: {{ .servicePort }}
-  {{- end }}
+    {{- end }}
 {{- end }}

@@ -1,0 +1,31 @@
+{{- if .Values.servicemonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    helm.sh/chart: {{ include "spring-boot-chart.chart" . }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.selector: {{ include "spring-boot-chart.fullname" . }}
+    app.kubernetes.io/name: {{ include "spring-boot-chart.fullname" . }}
+    app.kubernetes.io/version: {{ .Values.version }}
+    {{- if .Values.labels }}
+{{ toYaml .Values.labels | indent 4 }}
+    {{- end }}
+    {{- if .Values.servicemonitor.labels }}
+{{ toYaml .Values.servicemonitor.labels | indent 4 }}
+    {{- end }}
+  name: {{ include "spring-boot-chart.fullname" . }}
+  namespace: {{ .Values.servicemonitor.namespace }}
+spec:
+  endpoints:
+    - interval: 5s
+      port: http
+      path: /actuator/prometheus
+  namespaceSelector:
+    any: true
+{{/*      - {{ .Release.Namespace }}*/}}
+  selector:
+    matchLabels:
+      app.selector: {{ include "spring-boot-chart.fullname" . }}
+
+{{- end }}
