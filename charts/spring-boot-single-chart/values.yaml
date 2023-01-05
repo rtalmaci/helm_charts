@@ -41,8 +41,10 @@ deployment:
 #        servicePort: 8090
 #        appProtocol: http
     livenessProbe:
+      enabled: true
       initialDelaySeconds: 20
     readinessProbe:
+      enabled: true
       initialDelaySeconds: 20
     resources:
       requests:

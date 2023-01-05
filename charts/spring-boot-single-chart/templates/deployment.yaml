@@ -57,7 +57,7 @@ spec:
           {{- end }}
           # env vars
           {{- if (gt (len .Values.deployment.mainContainer.env.vars) 0) }}
-{{ toYaml .Values.deployment.mainContainer.env.vars | indent 10 }}
+{{ toYaml .Values.deployment.mainContainer.env.vars | nindent 12 }}
           {{- end }}
           #ports:
 
@@ -71,18 +71,21 @@ spec:
               containerPort: {{ .Values.deployment.mainContainer.hazelcast.hazelcastPort }}
           {{- end }}
           # END: ports
-
+  {{- if .Values.deployment.mainContainer.livenessProbe.enabled }}
           # probes:
           livenessProbe:
             initialDelaySeconds: {{ .Values.deployment.mainContainer.livenessProbe.initialDelaySeconds }}
             httpGet:
               path: /actuator/health/liveness
               port: http
+  {{- end }}
+  {{- if .Values.deployment.mainContainer.readinessProbe.enabled }}
           readinessProbe:
             initialDelaySeconds: {{ .Values.deployment.mainContainer.readinessProbe.initialDelaySeconds }}
             httpGet:
               path: /actuator/health/readiness
               port: http
+  {{- end }}
           # probes
           resources:
             {{- toYaml .Values.deployment.mainContainer.resources | nindent 12 }}

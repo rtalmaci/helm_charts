@@ -1,8 +1,8 @@
 apiVersion: v1
-appVersion: "0.0.3"
+appVersion: "0.0.4"
 description: Simple spring boot helm chart
 name: spring-boot-chart
-version: 0.0.3
+version: 0.0.4
 home: https://rtalmaci.github.io/helm_charts
 
 
