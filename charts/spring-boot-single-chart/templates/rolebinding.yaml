@@ -9,6 +9,8 @@ metadata:
     app.selector: {{ include "spring-boot-chart.fullname" . }}
     app.kubernetes.io/name: {{ include "spring-boot-chart.fullname" . }}
     app.kubernetes.io/version: {{ .Values.version }}
+    app: {{ include "spring-boot-chart.fullname" . }}
+    version: {{ .Values.version }}
 roleRef:
     kind: Role
     name: {{ include "spring-boot-chart.fullname" . }}
