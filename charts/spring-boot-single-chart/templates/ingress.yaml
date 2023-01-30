@@ -1,6 +1,8 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "spring-boot-chart.fullname" . -}}
 {{- $ingressPaths := .Values.ingress.paths -}}
+{{- $ingressHosts := .Values.ingress.hosts -}}
+
 
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -23,8 +25,18 @@ metadata:
 {{- end }}
 spec:
   ingressClassName: {{ .Values.ingress.ingressClassName }}
+  {{- if .Values.ingress.tlsenabled }}
+  tls:
+    - hosts:
+  {{- range $ingressHosts }}
+      - {{ . | quote }}
+  {{- end }}
+      secretName: {{ printf "%s-cert" $fullName }}
+  {{- end }}
   rules:
-    - http:
+    {{- range $ingressHosts }}
+    - host: {{ . | quote }}
+      http:
         paths:
 	{{- range $ingressPaths }}
           - pathType: {{ .pathType }}
@@ -34,5 +46,6 @@ spec:
                 name: {{ $fullName }}
                 port:
                   name: {{ .servicePort }}
+    {{- end }}
     {{- end }}
 {{- end }}
