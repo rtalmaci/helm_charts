@@ -115,7 +115,7 @@ spec:
                   key: instkey
             {{- end }}
           {{- if (gt (len .Values.deployment.secondaryContainer.env.vars) 0) }}
-  {{ toYaml .Values.deployment.secondaryContainer.env.vars | nindent 10 }}
+{{ toYaml .Values.deployment.secondaryContainer.env.vars | nindent 12 }}
           {{- end }}
           {{- if (gt (len .Values.deployment.secondaryContainer.ports ) 0)}}
           ports:
