@@ -42,11 +42,13 @@ spec:
             - name: JAVA_TOOL_OPTIONS
               value: "-Dserver.port={{ .Values.deployment.mainContainer.httpPort }}"
           {{- if .Values.azuremonitoring.enabled }}
-            - name: MICROSOFT_APP_INSIGHTS_INTRUMENTATION_KEY
+            - name: APPLICATIONINSIGHTS_ROLE_NAME
+              value: {{ include "spring-boot-chart.fullname" . }}
+            - name: APPLICATIONINSIGHTS_CONNECTION_STRING
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.azuremonitoring.secretName }}
-                  key: instkey
+                  key: connstring
           {{- end }}
           {{- if .Values.db.mongo.enabled }}
             - name: MONGO_URI
@@ -108,11 +110,13 @@ spec:
             - name: DUMMY
               value: DUMMY_VALUE
             {{- if .Values.azuremonitoring.enabled }}
-            - name: MICROSOFT_APP_INSIGHTS_INTRUMENTATION_KEY
+            - name: APPLICATIONINSIGHTS_ROLE_NAME
+              value: {{ .Values.deployment.secondaryContainer.name }}
+            - name: APPLICATIONINSIGHTS_CONNECTION_STRING
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.azuremonitoring.secretName }}
-                  key: instkey
+                  key: connstring
             {{- end }}
           {{- if (gt (len .Values.deployment.secondaryContainer.env.vars) 0) }}
 {{ toYaml .Values.deployment.secondaryContainer.env.vars | nindent 12 }}
