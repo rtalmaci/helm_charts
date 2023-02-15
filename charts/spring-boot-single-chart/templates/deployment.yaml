@@ -49,6 +49,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.azuremonitoring.secretName }}
                   key: connstring
+            - name: APPLICATIONINSIGHTS_INST_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.azuremonitoring.secretName }}
+                  key: instkey
           {{- end }}
           {{- if .Values.db.mongo.enabled }}
             - name: MONGO_URI

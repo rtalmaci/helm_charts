@@ -15,7 +15,9 @@ metadata:
 {{ toYaml .Values.labels | indent 4 }}
     {{- end }}
 rules:
-  - apiGroups: [""]
+  - apiGroups:
+      - ""
+      - "extensions"
     resources:
       - secrets
       - pods
@@ -26,7 +28,9 @@ rules:
       - get
       - list
       - watch
-  - apiGroups: [ "" ]
+  - apiGroups:
+      - ""
+      - "extensions"
     resources:
       - configmaps
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
