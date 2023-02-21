@@ -54,6 +54,8 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.azuremonitoring.secretName }}
                   key: instkey
+            - name: APPLICATIONINSIGHTS_CONFIGURATION_FILE
+              value: "/workspace/BOOT-INF/classes/applicationinsights.json"
           {{- end }}
           {{- if .Values.db.mongo.enabled }}
             - name: MONGO_URI
