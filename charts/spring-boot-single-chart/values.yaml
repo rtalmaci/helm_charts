@@ -109,6 +109,7 @@ ingress:
   tlsenabled: false
   hosts:
     - "*"
+  tlshosts: []
   paths:
     - path: /test/path
       servicePort: http
