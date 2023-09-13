@@ -40,7 +40,7 @@ spec:
           imagePullPolicy: {{ .Values.deployment.mainContainer.image.pullPolicy }}
           env:
             - name: JAVA_TOOL_OPTIONS
-              value: "-Dserver.port={{ .Values.deployment.mainContainer.httpPort }}"
+              value: "-Dserver.port={{ .Values.deployment.mainContainer.httpPort }} -XX:+UseContainerSupport "
           {{- if .Values.azuremonitoring.enabled }}
             - name: APPLICATIONINSIGHTS_ROLE_NAME
               value: {{ include "spring-boot-chart.fullname" . }}
